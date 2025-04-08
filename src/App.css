@@ -1,0 +1,26 @@
+/* Añade estos estilos */
+main {
+  width: 100%;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.nav-link {
+  color: white;
+  text-decoration: none;
+  margin: 0 15px;
+  padding: 8px 15px;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.home-content {
+  text-align: center;
+  padding: 50px 20px;
+}
+
+/* Mantén tus estilos existentes */

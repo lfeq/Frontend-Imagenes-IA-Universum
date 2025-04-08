@@ -1,0 +1,67 @@
+.carousel-horizontal-wrapper {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.carousel-track {
+    display: flex;
+    gap: 40px;
+    animation: scroll 60s linear infinite;
+    padding: 20px;
+    width: max-content;
+}
+
+.carousel-card {
+    min-width: 300px;
+    max-width: 300px;
+    background: #1e1e1e;
+    border-radius: 12px;
+    overflow: hidden;
+    flex-shrink: 0;
+    color: white;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+}
+
+.carousel-card img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-bottom: 2px solid #fff2;
+}
+
+.image-label {
+    padding: 10px;
+}
+
+.image-label h3 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.image-label p {
+    margin: 0;
+    font-size: 1rem;
+    color: #ccc;
+}
+
+@keyframes scroll {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+.loading-message {
+    color: white;
+    text-align: center;
+    font-size: 1.5rem;
+    margin-top: 40vh;
+}
