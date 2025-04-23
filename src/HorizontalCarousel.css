@@ -1,67 +1,94 @@
-.carousel-horizontal-wrapper {
-    width: 100vw;
-    height: 100vh;
-    overflow: hidden;
-    background: black;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+/* Contenedor principal de la cuadrícula */
+.grid-container {
+    width: 100vw; /* Ancho completo de la ventana */
+    height: 100vh; /* Alto completo de la ventana */
+    display: grid;
+    /* Crea 3 columnas de igual tamaño */
+    grid-template-columns: repeat(3, 1fr);
+    /* Crea 3 filas de igual tamaño */
+    grid-template-rows: repeat(3, 1fr);
+    gap: 15px; /* Espacio entre celdas */
+    padding: 15px; /* Espacio alrededor de la cuadrícula */
+    background-color: black; /* Fondo oscuro */
+    box-sizing: border-box; /* Incluye padding y border en el tamaño total */
+    overflow: hidden; /* Evita cualquier barra de scroll */
 }
 
-.carousel-track {
+/* Estilo para cada celda de la cuadrícula */
+.grid-item {
+    background-color: #1e1e1e; /* Fondo gris oscuro para cada item */
+    border-radius: 8px; /* Bordes redondeados */
+    overflow: hidden; /* Esconde lo que se salga del item */
     display: flex;
-    gap: 40px;
-    animation: scroll 60s linear infinite;
-    padding: 20px;
-    width: max-content;
-}
-
-.carousel-card {
-    min-width: 300px;
-    max-width: 300px;
-    background: #1e1e1e;
-    border-radius: 12px;
-    overflow: hidden;
-    flex-shrink: 0;
-    color: white;
+    flex-direction: column; /* Apila imagen y texto verticalmente */
+    color: white; /* Texto blanco */
     text-align: center;
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1); /* Sombra sutil */
 }
 
-.carousel-card img {
-    width: 100%;
-    height: 220px;
-    object-fit: cover;
-    border-bottom: 2px solid #fff2;
+/* Contenedor específico para la imagen dentro del item */
+.grid-item .image-container {
+    flex-grow: 1; /* Permite que este contenedor crezca para llenar espacio */
+    display: flex;
+    align-items: center; /* Centra la imagen verticalmente */
+    justify-content: center; /* Centra la imagen horizontalmente */
+    overflow: hidden; /* Asegura que nada se desborde */
+    padding: 10px; /* Espacio interno para que la imagen no toque los bordes */
+    height: 75%; /* Ajusta este % para dar más o menos espacio a la imagen vs texto */
 }
 
-.image-label {
-    padding: 10px;
+/* Estilo para la imagen */
+.grid-item img {
+    display: block; /* Elimina espacio extra debajo de la imagen */
+    max-width: 100%; /* Máximo ancho posible dentro del contenedor */
+    max-height: 100%; /* Máximo alto posible dentro del contenedor */
+    object-fit: contain; /* **CLAVE**: Escala la imagen manteniendo la proporción, sin recortar */
+    object-position: center; /* Centra la imagen dentro de su 'box' */
+    border-radius: 4px; /* Redondeo leve si se desea */
 }
 
-.image-label h3 {
+/* Estilo para la etiqueta con nombre y edad */
+.grid-item .image-label {
+    padding: 8px 10px; /* Espaciado interno */
+    background-color: rgba(0, 0, 0, 0.2); /* Fondo semitransparente ligero */
+    flex-shrink: 0; /* Evita que la etiqueta se encoja */
+    height: 25%; /* Altura fija correspondiente al image-container */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Centra el texto verticalmente */
+}
+
+.grid-item .image-label h3 {
+    margin: 0 0 2px 0; /* Margen inferior pequeño */
+    font-size: clamp(0.8rem, 1.5vw, 1.1rem); /* Tamaño de fuente adaptable */
+    font-weight: 600;
+    white-space: nowrap; /* Evita que el nombre se parta en dos líneas */
+    overflow: hidden; /* Esconde el texto que no quepa */
+    text-overflow: ellipsis; /* Añade "..." al final si el texto no cabe */
+}
+
+.grid-item .image-label p {
     margin: 0;
-    font-size: 1.2rem;
+    font-size: clamp(0.7rem, 1.3vw, 0.9rem); /* Tamaño de fuente adaptable */
+    color: #ccc; /* Color gris claro */
 }
 
-.image-label p {
-    margin: 0;
-    font-size: 1rem;
-    color: #ccc;
+/* Estilo para celdas vacías (si hay menos de 9 imágenes) */
+.grid-item.empty {
+    background-color: #111; /* Un poco más oscuro para indicar vacío */
+    box-shadow: none;
 }
 
-@keyframes scroll {
-    0% {
-        transform: translateX(0);
-    }
-    100% {
-        transform: translateX(-50%);
-    }
-}
 
+/* Mensaje de carga (puedes usar el mismo que tenías) */
 .loading-message {
     color: white;
     text-align: center;
     font-size: 1.5rem;
-    margin-top: 40vh;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: black;
 }

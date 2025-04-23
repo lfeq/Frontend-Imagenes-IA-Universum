@@ -4,9 +4,6 @@ import './FutureViewingsList.css';
 
 import { API_URL } from './config';
 
-// Añade este hook al inicio del componente
-
-
 const FutureViewingsList = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const page = parseInt(searchParams.get('page') || 1);
