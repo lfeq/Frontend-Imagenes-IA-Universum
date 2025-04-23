@@ -24,6 +24,7 @@
     color: white; /* Texto blanco */
     text-align: center;
     box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1); /* Sombra sutil */
+    transition: background-color 0.3s ease; /* Transición suave para empty/filled */
 }
 
 /* Contenedor específico para la imagen dentro del item */
@@ -73,14 +74,14 @@
     color: #ccc; /* Color gris claro */
 }
 
-/* Estilo para celdas vacías (si hay menos de 9 imágenes) */
+/* Estilo para celdas vacías (cuando el elemento es null) */
 .grid-item.empty {
     background-color: #111; /* Un poco más oscuro para indicar vacío */
-    box-shadow: none;
+    box-shadow: none; /* Sin sombra para celdas vacías */
 }
 
 
-/* Mensaje de carga (puedes usar el mismo que tenías) */
+/* Mensaje de carga/error/espera */
 .loading-message {
     color: white;
     text-align: center;
