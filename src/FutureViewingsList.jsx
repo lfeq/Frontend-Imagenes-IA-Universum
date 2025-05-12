@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import './FutureViewingsList.css';
 
-import { API_URL } from './config';
+import { API_URL, IMAGES_URL } from './config';
 
 const FutureViewingsList = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -102,7 +102,7 @@ const FutureViewingsList = () => {
                             {viewing.imageUrl && (
                                 <div className="image-container">
                                     <img
-                                        src={viewing.imageUrl}
+                                        src={`${IMAGES_URL}${viewing.imageUrl}`}
                                         alt={`Generated content: ${viewing.content}`}
                                         className="generated-image"
                                         onError={(e) => {
