@@ -2,19 +2,18 @@ import React, { useEffect, useState, useCallback, useRef } from 'react';
 import './HorizontalCarousel.css';
 import { API_URL, IMAGES_URL } from './config';
 
-// --- Constantes (ajusta según necesidad) ---
-// const FETCH_INTERVAL_MS = 5 * 60 * 1000; // 5 minutos
-// const SHIFT_INTERVAL_MS = 3 * 60 * 1000; // 3 minutos
 const FETCH_INTERVAL_MS = 15 * 1000; // 15 segundos (para pruebas)
 const SHIFT_INTERVAL_MS = 10 * 1000; // 10 segundos (para pruebas)
 const GRID_SIZE = 9;
 const FETCH_PAGE_SIZE = 20;
+const SCREEN_STORAGE_KEY = "carousel_screen_id";
 
 export default function ImageGrid() {
     const [displayedImages, setDisplayedImages] = useState(() => Array(GRID_SIZE).fill(null));
     const [incomingImageQueue, setIncomingImageQueue] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [screenId, setScreenId] = useState(null);
 
     const queueRef = useRef(incomingImageQueue);
     useEffect(() => {
@@ -26,12 +25,50 @@ export default function ImageGrid() {
         displayRef.current = displayedImages;
     }, [displayedImages]);
 
-    // --- fetchImages (sin cambios respecto a la versión funcional anterior) ---
+    // --- Registrar o recuperar screenId ---
+    useEffect(() => {
+        async function ensureScreenId() {
+            let storedId = localStorage.getItem(SCREEN_STORAGE_KEY);
+            if (storedId) {
+                setScreenId(storedId);
+                return;
+            }
+            // Registrar pantalla en el backend
+            try {
+                const mutation = `
+                  mutation {
+                    registerScreen(input: { name: "Pantalla Carousel" }) {
+                      screen { id }
+                    }
+                  }
+                `;
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ query: mutation }),
+                });
+                const data = await response.json();
+                const id = data?.data?.registerScreen?.screen?.id;
+                if (id) {
+                    localStorage.setItem(SCREEN_STORAGE_KEY, id);
+                    setScreenId(id);
+                } else {
+                    setError("No se pudo registrar la pantalla.");
+                }
+            } catch (err) {
+                setError("Error registrando pantalla.");
+            }
+        }
+        ensureScreenId();
+    }, []);
+
+    // --- fetchImages usa screenId ahora ---
     const fetchImages = useCallback(async () => {
+        if (!screenId) return;
         console.log("FETCH: Buscando imágenes...");
         const query = `
             query {
-                recentFutureViewings(page: 1, pageSize: ${FETCH_PAGE_SIZE}) {
+                recentFutureViewings(screenId: "${screenId}", page: 1, pageSize: ${FETCH_PAGE_SIZE}) {
                     id name createdAt age imageUrl content status
                 }
             }
@@ -82,59 +119,32 @@ export default function ImageGrid() {
                 setIsLoading(false);
             }
         }
-    }, [isLoading]);
+    }, [isLoading, screenId]);
 
-    // --- Función para desplazar las imágenes (MODIFICADA) ---
     const shiftImages = useCallback(() => {
         const currentQueue = queueRef.current;
-        console.log(`SHIFT: Iniciando. Tamaño cola actual: ${currentQueue.length}`);
+        if (currentQueue.length === 0) return;
+        const imageToShiftIn = currentQueue[0];
+        setIncomingImageQueue(prevQueue => prevQueue.slice(1));
+        setDisplayedImages(prevDisplay => [imageToShiftIn, ...prevDisplay.slice(0, GRID_SIZE - 1)]);
+    }, []);
 
-        // ******** INICIO DE LA MODIFICACIÓN ********
-        // Si la cola está vacía, no hacer nada y salir.
-        if (currentQueue.length === 0) {
-            console.log("SHIFT: La cola está vacía. No se realizará ningún desplazamiento.");
-            return; // Salir de la función aquí mismo
-        }
-        // ******** FIN DE LA MODIFICACIÓN ********
-
-        // Si llegamos aquí, la cola NO está vacía. Procedemos como antes.
-        const imageToShiftIn = currentQueue[0]; // Tomar la imagen más "vieja" de la cola
-        console.log(`SHIFT: Se tomará la imagen ${imageToShiftIn.id} de la cola.`);
-
-        // Actualizar la cola (quitar el elemento que vamos a mostrar)
-        setIncomingImageQueue(prevQueue => {
-            const newQueue = prevQueue.slice(1);
-            console.log(`SHIFT QUEUE UPDATE: Imagen ${imageToShiftIn.id} eliminada. Nuevo tamaño cola: ${newQueue.length}`);
-            return newQueue;
-        });
-
-        // Actualizar el array de display
-        setDisplayedImages(prevDisplay => {
-            console.log(`SHIFT DISPLAY UPDATE: Desplazando '${imageToShiftIn?.id ?? 'null'}' a la posición 0.`);
-            const newDisplay = [imageToShiftIn, ...prevDisplay.slice(0, GRID_SIZE - 1)];
-            return newDisplay;
-            // Ya no necesitamos la comprobación compleja de si la imagen es la misma,
-            // porque si la cola estaba vacía, ya habríamos salido antes.
-        });
-
-    }, []); // useCallback sin dependencias porque usa refs y setters
-
-    // --- useEffect para intervalos (sin cambios) ---
+    // Intervalos solo cuando hay screenId
     useEffect(() => {
-        console.log("EFFECT: Montando componente y configurando intervalos.");
+        if (!screenId) return;
         fetchImages();
         const fetchTimer = setInterval(fetchImages, FETCH_INTERVAL_MS);
         const shiftTimer = setInterval(shiftImages, SHIFT_INTERVAL_MS);
         return () => {
-            console.log("EFFECT: Desmontando componente y limpiando intervalos.");
             clearInterval(fetchTimer);
             clearInterval(shiftTimer);
         };
-    }, [fetchImages, shiftImages]);
+    }, [fetchImages, shiftImages, screenId]);
 
-    // --- Renderizado (sin cambios) ---
-    console.log(`RENDER: isLoading=${isLoading}, error=${error}, queueSize=${incomingImageQueue.length}, displayedImages[0]=${displayedImages[0]?.id ?? 'null'}`);
-    // ... (resto del código de renderizado igual que antes)
+    // Renderizado
+    if (!screenId) {
+        return <p className="loading-message">Registrando pantalla...</p>;
+    }
     if (isLoading) {
         return <p className="loading-message">Cargando imágenes...</p>;
     }
@@ -160,9 +170,7 @@ export default function ImageGrid() {
                                     {img.age && <p>{img.age} años</p>}
                                 </div>
                             </>
-                        ) : (
-                            null
-                        )}
+                        ) : null}
                     </div>
                 );
             })}
